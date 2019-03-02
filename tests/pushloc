@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+
+file=$(mktemp)
+loadc_op=$(echo -e '\x01')
+mkbasic_op=$(echo -e '\x06')
+getbasic_op=$(echo -e '\x07')
+pushloc_op=$(echo -e '\x0D')
+
+echo -e \
+"$loadc_op"\
+"\x09\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"$mkbasic_op"\
+"\x00\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"$loadc_op"\
+"\x02\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"$mkbasic_op"\
+"\x00\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"$pushloc_op"\
+"\x01\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"$getbasic_op"\
+"\x00\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"\x00" > "$file"
+
+./build/fm "$file"
+result="$?"
+
+if [[ "$result" -ne 9 ]]; then
+  echo "tests/pushloc failure: expected $result to equal 9"
+  exit 1
+fi

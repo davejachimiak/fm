@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+file=$(mktemp)
+loadc_op=$(echo -e '\x01')
+leq_op=$(echo -e '\x08')
+
+echo -e \
+"$loadc_op"\
+"\x09\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"$loadc_op"\
+"\x0A\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"$leq_op"\
+"\x00\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"\x00" > "$file"
+
+./build/fm "$file"
+result="$?"
+
+if [[ "$result" -ne 1 ]]; then
+  echo "tests/leq failure: expected $result to equal 1"
+  exit 1
+fi

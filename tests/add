@@ -1,0 +1,25 @@
+#! /usr/bin/env bash
+
+file=$(mktemp)
+loadc_op=$(echo -e '\x01')
+add_op=$(echo -e '\x02')
+
+echo -e \
+"$loadc_op"\
+"\x04\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"$loadc_op"\
+"\x01\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"$add_op"\
+"\x00\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"\x00" > "$file"
+
+./build/fm "$file"
+result="$?"
+
+if [[ "$result" -ne 5 ]]; then
+  echo "tests/add failure: expected $result to equal 5"
+  exit 1
+fi

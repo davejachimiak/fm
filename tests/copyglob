@@ -1,0 +1,125 @@
+#!/usr/bin/env bash
+
+#! /usr/bin/env bash
+
+file=$(mktemp)
+loadc_op=$(echo -e '\x01')
+add_op=$(echo -e '\x02')
+mkbasic_op=$(echo -e '\x06')
+getbasic_op=$(echo -e '\x07')
+jump_op=$(echo -e '\x0B')
+pushloc_op=$(echo -e '\x0D')
+mkvec_op=$(echo -e '\x0E')
+pushglob_op=$(echo -e '\x0F')
+mkclos_op=$(echo -e '\x10')
+eval_op=$(echo -e '\x11')
+update_op=$(echo -e '\x12')
+slide_op=$(echo -e '\x13')
+mkfunval_op=$(echo -e '\x14')
+targ_op=$(echo -e '\x15')
+return_op=$(echo -e '\x16')
+mark_op=$(echo -e '\x17')
+apply_op=$(echo -e '\x18')
+copyglob_op=$(echo -e '\x1B')
+
+# let y = 1
+# let f = fun x ->
+#   let g = y
+#   in g + x
+# in f 10
+# => 11
+
+echo -e \
+"$loadc_op"\
+"\x01\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"$mkbasic_op"\
+"\x00\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"$pushloc_op"\
+"\x01\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"$mkvec_op"\
+"\x01\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"$mkfunval_op"\
+"\x36\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"$jump_op"\
+"\xBD\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"$targ_op"\
+"\x01\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"$copyglob_op"\
+"\x00\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"$mkclos_op"\
+"\x5A\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"$jump_op"\
+"\x6C\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"$pushglob_op"\
+"\x00\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"$update_op"\
+"\x00\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"$pushloc_op"\
+"\x01\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"$eval_op"\
+"\x00\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"$getbasic_op"\
+"\x00\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"$pushloc_op"\
+"\x00\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"$getbasic_op"\
+"\x00\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"$add_op"\
+"\x00\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"$mkbasic_op"\
+"\x00\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"$slide_op"\
+"\x01\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"$return_op"\
+"\x01\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"$mark_op"\
+"\xEA\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"$loadc_op"\
+"\x0A\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"$mkbasic_op"\
+"\x00\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"$pushloc_op"\
+"\x02\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"$apply_op"\
+"\x00\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"$slide_op"\
+"\x02\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"$getbasic_op"\
+"\x00\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"\x00" > "$file"
+
+./build/fm "$file"
+result="$?"
+
+if [[ "$result" -ne 11 ]]; then
+  echo "tests/copyglob failure: expected $result to equal 11"
+  exit 1
+fi

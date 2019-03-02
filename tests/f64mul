@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+
+file=$(mktemp)
+loadc_op=$(echo -e '\x01')
+mkstringd_op=$(echo -e '\x22')
+fopen_op=$(echo -e '\x23')
+fputs_op=$(echo -e '\x24')
+f64tos_op=$(echo -e '\x27')
+f64mul_op=$(echo -e '\x2A')
+
+echo -e \
+"$mkstringd_op"\
+"\x51\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"$mkstringd_op"\
+"\x5A\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"$fopen_op"\
+"\x00\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"$loadc_op"\
+"\x87\x16\xD9\xCE"\
+"\xF7\x53\xF5\x3F"\
+"$loadc_op"\
+"\x00\x00\x00\x00"\
+"\x00\x00\x04\x40"\
+"$f64mul_op"\
+"\x00\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"$f64tos_op"\
+"\x02\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"$fputs_op"\
+"\x00\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"\x00"\
+"\x00\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"\x01\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"\x77"\
+"\x0B\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"\x2f\x64\x65\x76\x2f\x73\x74\x64\x6f\x75\x74"\
+> "$file"
+
+#./build/fm "$file" # --debug
+result=$(./build/fm "$file")
+
+if [[ "$result" != "3.33" ]]; then
+  echo "tests/f64add_f64tos failure: expected $result to equal 3.33"
+  exit 1
+fi

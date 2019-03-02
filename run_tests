@@ -1,0 +1,15 @@
+#! /usr/bin/env bash
+
+for test_file in ./tests/*; do
+  ./"$test_file"
+
+  result=$?
+
+  if [[ "$result" -ne 0 ]]; then
+    r=$?
+    echo "exiting fast on failure"
+    exit $r
+  fi
+done
+
+echo "success"

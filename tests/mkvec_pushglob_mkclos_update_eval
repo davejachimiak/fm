@@ -1,0 +1,86 @@
+#!/usr/bin/env bash
+
+file=$(mktemp)
+loadc_op=$(echo -e '\x01')
+add_op=$(echo -e '\x02')
+mkbasic_op=$(echo -e '\x06')
+getbasic_op=$(echo -e '\x07')
+jump_op=$(echo -e '\x0B')
+pushloc_op=$(echo -e '\x0D')
+mkvec_op=$(echo -e '\x0E')
+pushglob_op=$(echo -e '\x0F')
+mkclos_op=$(echo -e '\x10')
+eval_op=$(echo -e '\x11')
+update_op=$(echo -e '\x12')
+
+# let x = 9
+# let y = 8
+# let addXY = x + y
+# in addXY + 3
+echo -e \
+"$loadc_op"\
+"\x09\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"$mkbasic_op"\
+"\x00\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"$loadc_op"\
+"\x08\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"$mkbasic_op"\
+"\x00\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"$mkvec_op"\
+"\x02\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"$mkclos_op"\
+"\x3F\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"$jump_op"\
+"\x7E\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"$pushglob_op"\
+"\x00\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"$getbasic_op"\
+"\x00\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"$pushglob_op"\
+"\x01\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"$getbasic_op"\
+"\x00\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"$add_op"\
+"\x00\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"$mkbasic_op"\
+"\x00\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"$update_op"\
+"\x00\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"$pushloc_op"\
+"\x01\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"$eval_op"\
+"\x00\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"$getbasic_op"\
+"\x00\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"$loadc_op"\
+"\x03\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"$add_op"\
+"\x00\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"\x00" > "$file"
+
+./build/fm "$file"
+result="$?"
+
+if [[ "$result" -ne 20 ]]; then
+  echo "tests/mkvec_pushglob_mkclos_update_eval failure: expected $result to equal 20"
+  exit 1
+fi

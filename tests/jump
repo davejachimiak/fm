@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+file=$(mktemp)
+loadc_op=$(echo -e '\x01')
+jump_op=$(echo -e '\x0B')
+
+echo -e \
+"$loadc_op"\
+"\x04\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"$jump_op"\
+"\x1B\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"$loadc_op"\
+"\x03\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"\x00" > "$file"
+
+./build/fm "$file"
+result="$?"
+
+if [[ "$result" -ne 4 ]]; then
+  echo "tests/jump failure: expected $result to equal 4"
+  exit 1
+fi

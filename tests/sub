@@ -1,0 +1,25 @@
+#! /usr/bin/env bash
+
+file=$(mktemp)
+loadc_op=$(echo -e '\x01')
+sub_op=$(echo -e '\x03')
+
+echo -e \
+"$loadc_op"\
+"\x00\x01\x00\x00"\
+"\x00\x00\x00\x00"\
+"$loadc_op"\
+"\x01\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"$sub_op"\
+"\x00\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"\x00" > "$file"
+
+./build/fm "$file"
+result="$?"
+
+if [[ "$result" -ne 255 ]]; then
+  echo "tests/sub failure: expected $result to equal 255"
+  exit 1
+fi

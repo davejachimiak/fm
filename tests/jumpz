@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+
+file=$(mktemp)
+loadc_op=$(echo -e '\x01')
+leq_op=$(echo -e '\x08')
+jumpz_op=$(echo -e '\x0C')
+
+echo -e \
+"$loadc_op"\
+"\x04\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"$loadc_op"\
+"\x03\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"$leq_op"\
+"\x00\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"$jumpz_op"\
+"\x36\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"$loadc_op"\
+"\x09\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"\x00"\
+"\x00\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"$loadc_op"\
+"\x04\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"\x00" > "$file"
+
+./build/fm "$file"
+result="$?"
+
+if [[ "$result" -ne 4 ]]; then
+  echo "tests/jumpz failure: expected $result to equal 4"
+  exit 1
+fi

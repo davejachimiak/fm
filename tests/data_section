@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+
+file=$(mktemp)
+sub_op=$(echo -e '\x03')
+loadd_op=$(echo -e '\x21')
+
+# 9,223,372,036,854,775,807 - 9.223372036854776e18
+# => 255
+
+echo -e \
+"$loadd_op"\
+"\x24\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"$loadd_op"\
+"\x2C\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"$sub_op"\
+"\x00\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"\x00"\
+"\x00\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"\xFF\xFF\xFF\xFF"\
+"\xFF\xFF\xFF\xFF"\
+"\x00\xFF\xFF\xFF"\
+"\xFF\xFF\xFF\xFF"\
+> "$file"
+
+./build/fm "$file"
+result="$?"
+
+if [[ "$result" -ne 255 ]]; then
+  echo "tests/recursive_functions failure: expected $result to equal 255"
+  exit 1
+fi

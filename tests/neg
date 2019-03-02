@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+
+
+file=$(mktemp)
+loadc_op=$(echo -e '\x01')
+add_op=$(echo -e '\x02')
+neg_op=$(echo -e '\x09')
+
+echo -e \
+"$loadc_op"\
+"\x04\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"$neg_op"\
+"\x00\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"$loadc_op"\
+"\x05\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"$add_op"\
+"\x00\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"\x00" > "$file"
+
+./build/fm "$file"
+result="$?"
+
+if [[ "$result" -ne 1 ]]; then
+  echo "tests/neg failure: expected $result to equal 1"
+  exit 1
+fi

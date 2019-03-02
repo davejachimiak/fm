@@ -1,0 +1,31 @@
+#! /usr/bin/env bash
+
+file=$(mktemp)
+loadc_op=$(echo -e '\x01')
+div_op=$(echo -e '\x05')
+
+echo -e \
+"$loadc_op"\
+"\x90\x01\x00\x00"\
+"\x00\x00\x00\x00"\
+"$loadc_op"\
+"\x02\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"$div_op"\
+"\x00\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"$loadc_op"\
+"\x02\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"$div_op"\
+"\x00\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"\x00" > "$file"
+
+./build/fm "$file"
+result="$?"
+
+if [[ "$result" -ne 100 ]]; then
+  echo "tests/div failure: expected $result to equal 100"
+  exit 1
+fi

@@ -1,0 +1,18 @@
+#! /usr/bin/env bash
+
+file=$(mktemp)
+loadc_op=$(echo -e '\x01')
+
+echo -e \
+"$loadc_op"\
+"\x05\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"\x00" > "$file"
+
+./build/fm "$file"
+result="$?"
+
+if [[ "$result" -ne 5 ]]; then
+  echo "tests/loadc_halt failure: expected $result to equal 5"
+  exit 1
+fi

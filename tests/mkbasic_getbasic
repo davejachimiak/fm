@@ -1,0 +1,33 @@
+#! /usr/bin/env bash
+
+file=$(mktemp)
+loadc_op=$(echo -e '\x01')
+div_op=$(echo -e '\x05')
+mkbasic_op=$(echo -e '\x06')
+getbasic_op=$(echo -e '\x07')
+
+echo -e \
+"$loadc_op"\
+"\x90\x01\x00\x00"\
+"\x00\x00\x00\x00"\
+"$mkbasic_op"\
+"\x00\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"$getbasic_op"\
+"\x00\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"$loadc_op"\
+"\x04\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"$div_op"\
+"\x00\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"\x00" > "$file"
+
+./build/fm "$file"
+result="$?"
+
+if [[ "$result" -ne 100 ]]; then
+  echo "tests/mkbasic_get_basic failure: expected $result to equal 100"
+  exit 1
+fi

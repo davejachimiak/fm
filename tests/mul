@@ -1,0 +1,31 @@
+#! /usr/bin/env bash
+
+file=$(mktemp)
+loadc_op=$(echo -e '\x01')
+mul_op=$(echo -e '\x04')
+
+echo -e \
+"$loadc_op"\
+"\x0A\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"$loadc_op"\
+"\x09\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"$mul_op"\
+"\x00\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"$loadc_op"\
+"\x02\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"$mul_op"\
+"\x00\x00\x00\x00"\
+"\x00\x00\x00\x00"\
+"\x00" > "$file"
+
+./build/fm "$file"
+result="$?"
+
+if [[ "$result" -ne 180 ]]; then
+  echo "tests/mul failure: expected $result to equal 180"
+  exit 1
+fi
