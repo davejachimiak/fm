@@ -244,12 +244,42 @@ long append_strings() {
   long string2_length = ((string *)heap[stack_entry(stack_pointer - 1)])->length;
   long length = string1_length + string2_length;
 
-  char * chars = malloc(length);
+  char * chars = malloc(length + 1);
   strcpy(chars, string1);
   strcat(chars, string2);
 
+  chars[length] = '\0';
+
   string * ptr = malloc(sizeof(string));
   long heap_ptr = heap_counter;
+
+  ptr->length = length;
+  ptr->chars = chars;
+
+  heap[heap_ptr] = (char *)ptr;
+  heap_counter++;
+
+  return heap_ptr;
+}
+
+long integer_to_string(long value, long base) {
+  string * ptr = malloc(sizeof(string));
+  long heap_ptr = heap_counter;
+  long length = 1;
+  long v = value;
+
+  while ((v = v / 10)) {
+    length++;
+  }
+
+  if (length < 0) {
+    length++;
+  }
+
+  char * chars = malloc(length);
+
+  snprintf(chars, length + 1, "%lu", value);
+  chars[length] = '\0';
 
   ptr->length = length;
   ptr->chars = chars;
@@ -272,11 +302,16 @@ long float_64_to_string(double value, long decimal_points) {
     abs_value = abs_value / 10;
   }
 
-  int length = decimal_points + int_length;
+  int significant_bits = decimal_points + int_length;
+  int length = significant_bits + 1; // + 1 for the decimal point
+
+  if (value < 0) {
+    length++; // for negative char
+  }
 
   char * chars = malloc(length);
 
-  gcvt(value, length, chars);
+  gcvt(value, significant_bits, chars);
 
   ptr->length = length;
   ptr->chars = chars;
@@ -530,7 +565,7 @@ int main(int argc, char **argv) {
         // replace old stack pointer;
         stack_pointer = frame_pointer - 2;
 
-        // rejuvinate old frame pointer
+        // replace old frame pointer
         frame_pointer = stack_entry(frame_pointer - 1);
 
         // replace old closure with value produced by the closure application
@@ -741,6 +776,11 @@ int main(int argc, char **argv) {
         float_64_val = stack_entry_as_float_64(stack_pointer - 1) / stack_entry_as_float_64(stack_pointer);
         set_stack_entry(stack_pointer - 1, *(signed long *)&float_64_val);
         stack_pointer--;
+        inc_program_counter();
+        break;
+      case ITOS:
+        arg = (long *)&program[program_counter + 1];
+        set_stack_entry(stack_pointer, integer_to_string(stack_entry(stack_pointer), *arg));
         inc_program_counter();
         break;
       case EOF:

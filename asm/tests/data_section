@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+
+asm_file=$(mktemp)
+program=$(mktemp)
+
+echo -e \
+'   mkstringd write_flag
+   mkstringd stdout
+   fopen
+   mkstringd message
+   loadd float
+   f64tos 1
+   appends
+   loadd integer
+   itos 1
+   appends
+   fputs
+   loadc 0
+   halt
+---
+write_flag = "w"
+stdout = "/dev/stdout"
+float = 3.3
+integer = 10
+message = "<<<theedge>>>"
+' > "$asm_file" 
+
+./build/fm-asm "$asm_file" > "$program"
+
+#cat "$program" | hexdump -e '9/1 " %02X" "\n"'
+
+#./build/fm "$program - 1"
+result=$(./build/fm "$program")
+expected="103.3<<<theedge>>>"
+
+if [[ "$result" != "$expected" ]]; then
+  echo "asm/tests/labels failure: expected \"$result\" to equal \"$expected\""
+  exit 1
+fi

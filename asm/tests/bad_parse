@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+
+asm_file=$(mktemp)
+program=$(mktemp)
+
+echo -e \
+'loadc 1
+loadc 2
+loadc 3 4 5
+loadc 2
+loadc 2
+loadc 2
+loadc 2
+loadc 2
+' > "$asm_file"
+
+./build/fm-asm "$asm_file" 2> "$program" >/dev/null
+
+result=$(cat "$program" | sed "s,$(printf '\033')\\[[0-9;]*[a-zA-Z],,g")
+
+message="loadc 1
+loadc 2
+loadc 3 4 5
+        ^
+[fm-asm 3:9] Parse error. (token: 4)"
+
+if [[ "$result" != "$message" ]]; then
+  echo "asm/tests/bad_parse failure: expected \"$result\" to equal \"$message\""
+  exit 1
+fi

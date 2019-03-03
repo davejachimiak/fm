@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+asm_file=$(mktemp)
+program=$(mktemp)
+
+echo -e \
+'mkstringd "w"
+mkstringd "/dev/stdout"
+fopen
+loadc 14.456789
+f64tos 4
+fputs
+loadc 0
+halt' > "$asm_file"
+
+./build/fm-asm "$asm_file" > "$program"
+
+#cat "$program" | hexdump -e '9/1 " %02X" "\n"'
+
+result=$(./build/fm "$program")
+
+if [[ "$result" != "14.4568" ]]; then
+  echo "asm/tests/float_args failure: expected \"$result\" to equal \"14.4568\""
+  exit 1
+fi

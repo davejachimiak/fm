@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+
+asm_file=$(mktemp)
+program=$(mktemp)
+
+echo -e \
+'  loadc 0
+   jump A
+   loadc 1
+   halt
+A: loadc 0
+   halt' > "$asm_file"
+
+./build/fm-asm "$asm_file" > "$program"
+
+#cat "$program" | hexdump -e '9/1 " %02X" "\n"'
+
+./build/fm "$program"
+result=$?
+
+if [[ "$result" -ne 0 ]]; then
+  echo "asm/tests/labels failure: expected \"$result\" to equal 0"
+  exit 1
+fi

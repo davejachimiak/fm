@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+asm_file=$(mktemp)
+program=$(mktemp)
+
+echo -e \
+'A: mkstringd A
+---
+A = "dup"
+' > "$asm_file"
+
+./build/fm-asm "$asm_file" 2> "$program" >/dev/null
+
+result=$(cat "$program")
+message="[fm-asm] error: duplicate symbol 'A' defined in lines 1 and 3"
+
+if [[ "$result" != "$message" ]]; then
+  echo "asm/tests/duplicate_symbols failure: expected \"$result\" to equal \"$message\""
+  exit 1
+fi

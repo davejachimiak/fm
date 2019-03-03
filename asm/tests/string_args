@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+asm_file=$(mktemp)
+program=$(mktemp)
+
+echo -e \
+'mkstringd "w"
+mkstringd "/dev/stdout"
+fopen
+mkstringd "hello fm!!!"
+fputs
+loadc 0
+halt' > "$asm_file"
+
+./build/fm-asm "$asm_file" > "$program"
+
+#cat "$program" | hexdump -e '9/1 " %02X" "\n"'
+
+result=$(./build/fm "$program")
+#./build/fm "$program"
+
+if [[ "$result" != "hello fm!!!" ]]; then
+  echo "asm/tests/string_args failure: expected \"$result\" to equal \"hello fm!!!\""
+  exit 1
+fi

@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+asm_file=$(mktemp)
+program=$(mktemp)
+
+echo -e \
+"loadc 6
+halt" > "$asm_file"
+
+./build/fm-asm "$asm_file" > "$program"
+
+./build/fm "$program"
+result="$?"
+
+if [[ "$result" -ne 6 ]]; then
+  echo "asm/tests/simple_program failure: expected $result to equal 6"
+  exit 1
+fi

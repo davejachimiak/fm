@@ -18,9 +18,35 @@ fm is in toy phase; it's far from being production-ready. It's missing:
 * garbage collection
 * sockets
 * threads
-* an assembler
+* ~an assembler~ done. see [`./asm`](https://github.com/davejachimiak/fm/tree/master/asm)
 * an object file format and linker
 * other useful stuff
+
+## Use
+
+To build the vm:
+
+```sh
+make fm
+```
+
+To run the vm:
+
+```sh
+./build/fm <fm-bytecode-file>
+```
+
+To build the assembler:
+
+```sh
+make assembler
+```
+
+To run the assember:
+
+```sh
+./build/fm-asm <fm-assembly-file>
+```
 
 ## Bytecode layout
 
@@ -28,7 +54,7 @@ An fm program is a bytecode file. fm expects the bytecode file to begin
 with instruction units. An optional data section should follow the
 series of instruction units.
 
-See `./tests` for examples.
+See `./vm/tests` for examples.
 
 ### Instruction format
 
@@ -144,8 +170,8 @@ Replaces the entry at the top of the stack with its negative value.
 Sets the program counter to `instruction_byte`. In other words,
 `instruction_byte` should address the exact byte of the instruction unit
 to jump to relative to the start of the program. For example, the first
-instruction is at `instruction_byte` and the second instruction is at
-`instruction_byte` * 9.
+instruction of the program would be at `instruction_byte` 0 and the
+second instruction of the program would be at `instruction_byte` 9.
 
 ### `jumpz(instruction_byte)` (`x0C`)
 
@@ -163,7 +189,7 @@ below refer to arguments and zero and above refer to local variables.
 ### `mkvec(size)` (`x0E`)
 
 Take `size` entries from the top of the stack, make a Vector object with
-them, pop the stack `size` times, and set the object into the entry at
+them, pop the stack `size - 1` times, and set the object into the entry at
 the top of the stack.
 
 ### `pushglob(index)` (`x0F`)
@@ -185,7 +211,8 @@ evaluated, the `program_counter` is set to this `instruction_byte`.
 
 If the entry at the top of the stack is a closure, `eval` evaluates it.
 
-If the entry at the top of the stack is not a closure, `eval` is a no-op.
+If the entry at the top of the stack is not a closure, `eval` is a
+no-op.
 
 ### `update` (`x12`)
 
@@ -409,3 +436,8 @@ second-from-the-top entry, pops the stack, sets the top of the stack to
 the result. This instruction differs from `div` in that the underlying C
 interprets the 8-byte stack entries as 64-bit floats instead of
 integers.
+
+### `itos` (`x2C`)
+
+Replaces the raw 64-bit long signed integer on top of the stack with a
+string object representing the integer.

@@ -87,6 +87,9 @@
 #define F64MUL_NAME "f64mul"
 #define F64DIV '\x2B'
 #define F64DIV_NAME "f64div"
+#define ITOS '\x2C'
+#define ITOS_NAME "itos"
 
 char * fm_ins_binary_to_name(char ins);
+char fm_ins_name_to_binary(char * name);
 #endif
